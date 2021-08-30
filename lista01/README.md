@@ -1,6 +1,6 @@
 ## Lista 01
 
-**Nome: Vinícius Münchow**
+**Nome: Vinícius Münchow** ---
 **Email: vlmunchow@inf.ufpel.edu.br | viniciuslaguna.m@gmail.com**
 
 - Para rodar os programas, use o comando **make compile** e, então, **make run**
