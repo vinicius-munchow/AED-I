@@ -18,4 +18,16 @@ lista01
 └───exercicio03
 │   │   exercicio03.c
 │   │   Makefile
+lista02
+│   README.md
+└───exercicio05
+│   │   exercicio05.c
+│   │   Makefile
+|   |   test.txt
+|   |   README.md
+└───exercicio07
+│   │   exercicio07.c
+│   │   Makefile
+|   |   test.txt
+|   |   README.md
 ```
