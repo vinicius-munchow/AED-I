@@ -3,6 +3,7 @@
 **Nome: Vinícius Münchow** ---
 **Email: vlmunchow@inf.ufpel.edu.br | viniciuslaguna.m@gmail.com**
 
+- Link para o repositório no github: https://github.com/vinicius-munchow/AED-I
 - Para rodar os programas, use o comando **make compile** e, então, **make run**
 - Caso deseje rodar os programas com os testes predefinidos pelos arquivos **test.txt** dentro das pastas, use o comando **make run-test**
 - Caso deseje testar memory leaks nos programas, use o comando **make run-memcheck** ou **make run-test-memcheck** (deve ter o Valgrind instalado)
