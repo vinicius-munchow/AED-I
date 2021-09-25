@@ -63,7 +63,7 @@ int remove_person(void *pBuffer, void *listHandler) {
 
             } else if ( *(void **)(person + PREVIOUS_PERSON) == NULL ) {
 
-                temp = FIRST_ON_LIST; //aponta para primeira posicao da lista
+                temp = FIRST_ON_LIST;
                 FIRST_ON_LIST = *(void **)(temp + NEXT_PERSON);
 
                 free(temp);
@@ -80,7 +80,7 @@ int remove_person(void *pBuffer, void *listHandler) {
 
                 free(temp);
                 
-                *(void **)((LAST_ON_LIST) + NEXT_PERSON) = NULL; //seta 'next_person' da nova ultima posiçao da lista como NULL
+                *(void **)((LAST_ON_LIST) + NEXT_PERSON) = NULL;
                 LIST_SIZE -= 1;
                 printf("\nNome excluido com sucesso!\n");
                 return 0;
