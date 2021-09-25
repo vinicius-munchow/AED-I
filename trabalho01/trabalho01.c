@@ -4,16 +4,27 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define FIRST_ON_LIST *(void **)listHandler
+#define LAST_ON_LIST *(void **)(listHandler + sizeof(void **))
+#define PREVIOUS_PERSON (sizeof(char) * 10) + sizeof(int) + sizeof(int)
+#define NEXT_PERSON (sizeof(char) * 10) + sizeof(int) + sizeof(int) + sizeof(void **)
+#define NAME (sizeof(char) * 10)
+#define AGE sizeof(int)
+#define NUMBER sizeof(int)
+#define LIST_SIZE *(int *)pBuffer
+#define OPTION (int *)(pBuffer + sizeof(int))
+
 int memfree(void *pBuffer, void *listHandler) {
     
-    if (*(int *)pBuffer == 0) {
+    if (LIST_SIZE == 0) {
         return 0;
     }
 
-    while (*(void **)(listHandler) != NULL) {
-        void *temp = malloc(sizeof(void **));
-        temp = *(void **)(listHandler);
-        *(void **)(listHandler) = *(void **)(temp + (sizeof(char) * 10 + sizeof(int) + sizeof(int) + sizeof(void **)));
+    void *temp = NULL;
+
+    while (FIRST_ON_LIST != NULL) {
+        temp = FIRST_ON_LIST;
+        FIRST_ON_LIST = *(void **)(temp + NEXT_PERSON);
         free(temp);
     }
 
@@ -22,75 +33,78 @@ int memfree(void *pBuffer, void *listHandler) {
 
 int remove_person(void *pBuffer, void *listHandler) {
 
-    if (*(int *)pBuffer == 0) {
+    if (LIST_SIZE == 0) {
         printf("\nAgenda vazia! Preencha-a com alguns registros antes e tente novamente!\n");
         return -1;
     }
 
     char nameComp[10];
-
-    void *person = malloc(sizeof(void **)); 
-    person = *(void **)(listHandler); //'first_person_on_list'
-
-    void *temp = malloc(sizeof(void **)); 
-    *(void **)temp = NULL;
-
-    if (!person || !temp) {
-        printf("Erro ao alocar memoria!\n");
-        return -1;
-    }
+    void *person = FIRST_ON_LIST;
+    void *temp = NULL;
 
     printf("\n-- Digite o nome da pessoa que deseja remover da agenda: ");
     scanf("%s^\n", nameComp);
 
     while (person != NULL) {
-        if ((strcmp(nameComp, (char *)person)) == 0) {
 
-            if (*(int *)pBuffer == 1) {
+        if ( (strcmp(nameComp, (char *)person)) == 0 ) {
 
-                temp = *(void **)listHandler;
+            if (LIST_SIZE == 1) {
+
+                temp = FIRST_ON_LIST;
+
                 free(temp);
-                *(void **)listHandler = NULL;
-                *(void **)(listHandler + sizeof(void **)) = NULL;
-                *(int *)pBuffer = 0;
+                
+                FIRST_ON_LIST = NULL;
+                LAST_ON_LIST = NULL;
+                LIST_SIZE = 0;
                 printf("\nNome excluido com sucesso! A agenda esta, agora, vazia.\n");
                 return 0;
 
-            } else if ( *(void **)(person + sizeof(char) * 10 + sizeof(int) + sizeof(int)) == NULL ) {
+            } else if ( *(void **)(person + PREVIOUS_PERSON) == NULL ) {
 
-                temp = *(void **)listHandler; //aponta para primeira posicao da lista
-                *(void **)listHandler = *(void **)(temp + sizeof(char) * 10 + sizeof(int) + sizeof(int) +sizeof(void **));
+                temp = FIRST_ON_LIST; //aponta para primeira posicao da lista
+                FIRST_ON_LIST = *(void **)(temp + NEXT_PERSON);
+
                 free(temp);
-                *(void **)(listHandler + sizeof(char) * 10 + sizeof(int) + sizeof(int)) = NULL;
-                *(int *)pBuffer -= 1;
+                
+                *(void **)((FIRST_ON_LIST) + PREVIOUS_PERSON) = NULL;
+                LIST_SIZE -= 1;
                 printf("\nNome excluido com sucesso!\n");
                 return 0;
 
+            } else if ( *(void **)(person + NEXT_PERSON) == NULL ) {
+
+                temp = LAST_ON_LIST;
+                LAST_ON_LIST = *(void **)(temp + PREVIOUS_PERSON);
+
+                free(temp);
+                
+                *(void **)((LAST_ON_LIST) + NEXT_PERSON) = NULL; //seta 'next_person' da nova ultima posiçao da lista como NULL
+                LIST_SIZE -= 1;
+                printf("\nNome excluido com sucesso!\n");
+                return 0;
+                
             } else {
 
-                //[temp->prox] = [person->prox], ou seja, pula a posicao do nome a ser removido
-                *(void **)(temp + sizeof(char) * 10 + sizeof(int) + sizeof(int) +sizeof(void **)) = *(void **)(person + sizeof(char) * 10 + sizeof(int) + sizeof(int) + sizeof(void **));
-                //atualiza a posicao de temp
+                *(void **)(temp + NEXT_PERSON) = *(void **)(person + NEXT_PERSON);
                 temp = person;
-                //person = [person->prox]
-                person = *(void **)(person + (sizeof(char) * 10 + sizeof(int) + sizeof(int) + sizeof(void **)));
-                //[person->prev] = [temp->prev], ou seja, pula a posicao do nome a ser removido 
-                *(void **)(person + sizeof(char) * 10 + sizeof(int) + sizeof(int)) = *(void **)(temp + sizeof(char) * 10 + sizeof(int) + sizeof(int));
+                person = *(void **)(person + NEXT_PERSON); 
+                *(void **)(person + PREVIOUS_PERSON) = *(void **)(temp + PREVIOUS_PERSON);
                 
                 free(temp);
 
-                *(int *)pBuffer -= 1;
-
+                LIST_SIZE -= 1;
                 printf("\nNome excluido com sucesso!\n");
-
                 return 0;
+
             }
 
-        } else { //if-else -> strcmp != 0
+        } else {
             temp = person; //pega a posicao antes da atualizacao
-            person = *(void **)(person + (sizeof(char) * 10 + sizeof(int) + sizeof(int) + sizeof(void **))); //pega a prox posicao
-        } //if-else -> strcmp != 0
-    } //while
+            person = *(void **)(person + NEXT_PERSON); //pega a prox posicao
+        }
+    }
 
     return 0;
 
@@ -99,61 +113,88 @@ int remove_person(void *pBuffer, void *listHandler) {
 int add_person(void *pBuffer, void *listHandler){
 
     //person [(person_size) + prev_person + next_person]
-    void *person = malloc((sizeof(char) * 10) + sizeof(int) + sizeof(int) + sizeof(void **) + sizeof(void **));
-    *(void **)(person + ((sizeof(char) * 10) + sizeof(int) + sizeof(int))) = NULL;
-    *(void **)(person + ((sizeof(char) * 10) + sizeof(int) + sizeof(int) + sizeof(void **))) = NULL;
-
-    void *aux = malloc(sizeof(void **)); 
-    *(void **)aux = NULL;
-    
-    if (!person || !aux) {
-        printf("Erro ao alocar memoria!\n");
+    void *person = malloc(NAME + AGE + NUMBER + sizeof(void **) + sizeof(void **));
+    if (!person) {
+        printf("Erro ao alocar memoria (person)!\n");
         return -1;
     }
+    *(void **)(person + PREVIOUS_PERSON) = NULL;
+    *(void **)(person + NEXT_PERSON) = NULL;
 
+    void *aux = NULL;
+    
     printf("\n-- Prossiga com as informacoes da pessoa que deseja incluir:\n\n");
 	printf("\t Nome: ");
     scanf("%s^\n", (char *)person);
     printf("\t Idade: ");
-    scanf("%i", &*(int *)(person + (sizeof(char) * 10)));
+    scanf("%d", (int *)(person + NAME));
     printf("\t Telefone: ");
-    scanf("%i", &*(int *)(person + (sizeof(char) * 10) + sizeof(int)));     
+    scanf("%d", (int *)(person + NAME + AGE));
     
-    if (*(int *)pBuffer == 0) {
-        *(void **)listHandler = person; //primeira pessoa da lista
-        *(void **)(listHandler + sizeof(void **)) = person; //ultima pessoa da lista
-        
-        *(int *)pBuffer += 1;
+    if (LIST_SIZE == 0) {
+
+        FIRST_ON_LIST = person;
+        LAST_ON_LIST = person;
+        LIST_SIZE += 1;
         return 0;
-    }
 
-    aux = *(void **)(listHandler + sizeof(void **)); //armazena a ultima ocorrencia da lista
+    } else {
 
-    *(void **)(person + ((sizeof(char) * 10) + sizeof(int) + sizeof(int))) = aux; //'prev_person' apontará para o ultimo end. antigo
-    *(void **)(aux + ((sizeof(char) * 10) + sizeof(int) + sizeof(int) + sizeof(void **))) = person; //'next_person'de aux apontará para person
-    *(void **)(listHandler + sizeof(void **)) = person; //'last_person_on_list' apontará para o novo endereço
+        aux = FIRST_ON_LIST;
 
-    *(int *)pBuffer += 1;
+        while(aux != NULL) {
+
+            if (strcmp((char *)person, (char *)aux) > 0) {
+
+                if (*(void **)(aux + NEXT_PERSON) == NULL) {
+
+                    *(void **)(person + PREVIOUS_PERSON) = aux;
+                    *(void **)(aux + NEXT_PERSON) = person;
+                    LAST_ON_LIST = person;
+                    LIST_SIZE += 1;
+                    return 0;
+
+                } else if (strcmp((char *)(*(void **)(aux + NEXT_PERSON)), (char *)person) > 0) {
+
+                    *(void **)(person + PREVIOUS_PERSON) = aux;
+                    *(void **)(person + NEXT_PERSON) = *(void **)(aux + NEXT_PERSON);
+                    *(void **)(aux + NEXT_PERSON) = person;
+                    *(void **)(*(void **)(aux + NEXT_PERSON) + PREVIOUS_PERSON) = person;
+                    LIST_SIZE += 1;
+                    return 0;
+
+                }
+
+            } else {
+
+            *(void **)(person + PREVIOUS_PERSON) = NULL;
+            *(void **)(person + NEXT_PERSON) = aux;
+            *(void **)(aux + PREVIOUS_PERSON) = person;
+            FIRST_ON_LIST = person;
+            LIST_SIZE += 1;
+            return 0;
+
+            }
+
+        aux = *(void **)(aux + NEXT_PERSON); //incrementa posicao da lista
+
+        }
 
     return 0;
+    
+    }
 }
 
 int search_person(void *pBuffer, void *listHandler) {
 
-    if (*(int *)pBuffer == 0) {
+    if (LIST_SIZE == 0) {
         printf("\nAgenda vazia! Preencha-a com alguns registros antes e tente novamente!\n");
         return -1;
     }
 
     char nameComp[10];
 
-    void *person = malloc(sizeof(void **));
-    person = *(void **)(listHandler); //'first_person_on_list'
-
-    if (!person) {
-        printf("Erro ao alocar memoria!\n");
-        return -1;
-    }
+    void *person = FIRST_ON_LIST;
 
     printf("\n-- Digite o nome da pessoa que deseja buscar: ");
     scanf("%s^\n", nameComp);
@@ -161,11 +202,11 @@ int search_person(void *pBuffer, void *listHandler) {
     while (person != NULL) {
         if ((strcmp(nameComp, (char *)person)) == 0) {
             printf("\nNome: %s", (char *)person);
-            printf("\nIdade: %i", *(int *)(person + (sizeof(char) * 10)));
-            printf("\nTelefone: %i\n", *(int *)(person + (sizeof(char) * 10) + sizeof(int)));
+            printf("\nIdade: %i", *(int *)(person + NAME));
+            printf("\nTelefone: %i\n", *(int *)(person + NAME + AGE));
             return 0;
         } else {
-            person = *(void **)(person + (sizeof(char) * 10 + sizeof(int) + sizeof(int) + sizeof(void **))); //'next_person'
+            person = *(void **)(person + NEXT_PERSON);
         }
     }
     //apenas em caso de nao encontrar nenhum nome
@@ -175,34 +216,27 @@ int search_person(void *pBuffer, void *listHandler) {
 
 int list_all(void *pBuffer, void *listHandler){
 
-    if (*(int *)pBuffer == 0) {
+    if (LIST_SIZE == 0) {
         printf("\nAgenda vazia! Preencha-a com alguns registros antes e tente novamente!\n");
         return -1;
     }
 
-    void *person = malloc(sizeof(void **)); 
-    person = *(void **)(listHandler); //'first_person_on_list'
-        
-    if (!person) {
-        printf("Erro ao alocar memoria!\n");
-        return -1;
-    }
+    void *person = FIRST_ON_LIST;
 
     printf("\n-- LISTA DE PESSOAS REGISTRADAS:\n");
 
     while (person != NULL) {
         printf("\nNome: %s", (char *)person);
-        printf("\nIdade: %i", *(int *)(person + (sizeof(char) * 10)));
-        printf("\nTelefone: %i", *(int *)(person + (sizeof(char) * 10) + sizeof(int)));
+        printf("\nIdade: %i", *(int *)(person + NAME));
+        printf("\nTelefone: %i", *(int *)(person + NAME + AGE));
         printf("\n------------------------------\n");
-        person = *(void **)(person + (sizeof(char) * 10 + sizeof(int) + sizeof(int) + sizeof(void **))); //'next_person'
+        person = *(void **)(person + NEXT_PERSON);
     }
 
     return 0;
 }
 
-int *menu(void *pBuffer){
-
+void menu(int *option){
 	do {
 		printf("\n-- AGENDA DE PESSOAS:\n\n");
 		printf("\t 1. Incluir registro\n");
@@ -211,30 +245,34 @@ int *menu(void *pBuffer){
 		printf("\t 4. Listar registros\n");
 		printf("\t 5. Sair\n");
 		printf("\n-- Digite sua escolha: ");
-		scanf("%d", &*(int *)(pBuffer + sizeof(int)));
-	} while (*(int *)(pBuffer + sizeof(int)) <= 0 || *(int *)(pBuffer + sizeof(int)) > 5);
+		scanf("%d", option);
+	} while (*option <= 0 || *option > 5);
 	getchar();
-	return pBuffer;
 }
 
 int main(int argc, char *argv[]){
     //listHandler = [first_person_on_list + last_person_on_list]
-    void *listHandler = malloc(sizeof(void **) + sizeof(void **));
-    *(void **)listHandler = NULL;
-
-    //pBuffer = [list_length + op]
-    void *pBuffer = malloc(sizeof(int) + sizeof(int));
-    *(int *)pBuffer = 0;
-    *(int *)(pBuffer + sizeof(int)) = 0;
-
-    if (!pBuffer || !listHandler) {
-        printf("Erro ao alocar memoria!\n");
+    void *listHandler = malloc(sizeof(void *) + sizeof(void *));
+    if (!listHandler){
+        printf("Erro ao alocar memoria (listHandler)!\n");
         return -1;
     }
+    
+    FIRST_ON_LIST = NULL;
+    LAST_ON_LIST = NULL;
+
+    //pBuffer = [list_size + op]
+    void *pBuffer = malloc(sizeof(int) + sizeof(int));
+    if (!pBuffer) {
+        printf("Erro ao alocar memoria (pBuffer)!\n");
+        return -1;
+    }
+    LIST_SIZE = 0;
 
     do {
-        pBuffer = menu(pBuffer);
-		switch (*(int *)(pBuffer + sizeof(int))) {
+        *OPTION = 0;
+        menu(OPTION);
+		switch (*OPTION) {
 		case 1:
 			add_person(pBuffer, listHandler);
 			break;
@@ -251,7 +289,7 @@ int main(int argc, char *argv[]){
             memfree(pBuffer, listHandler);
 			break;
 		}
-	} while (*(int *)(pBuffer + sizeof(int)) != 5);
+	} while (*OPTION != 5);
 
     free(listHandler);
     free(pBuffer);

@@ -23,5 +23,3 @@ Continuar a sua implementação da agenda (exercício 3) semana 1 dentro dos mes
 
 - Link para vídeo de demonstração: https://drive.google.com/drive/folders/1v0eofZQXVdCyzwcpyUvBZPDpgHM29kEG?usp=sharing
 - Link para prints com teste de memory leak (feitos com **make run-test-memcheck**): https://drive.google.com/drive/folders/12emXJfOAhm2DWawnkiUjLIrWM0AIPv35?usp=sharing
-
-- Dificuldades encontradas: não fui capaz de concretizar a parte da fila ordenada e tive alguns problemas descritos no video e nos prints em relação a memory leaks que não consegui consertar também.
