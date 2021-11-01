@@ -180,7 +180,7 @@ int main () {
 
     while(op != 0) {
        
-		op = menu();
+        op = menu();
 
         printf("\n--------------------------------------------------------------------\n");
 
@@ -197,9 +197,9 @@ int main () {
 
         printf("\n\n--------------------------------------------------------------------\n");
 
-		switch (op) {
-		case 1:
-			gettimeofday(&begin, 0);
+        switch (op) {
+        case 1:
+            gettimeofday(&begin, 0);
             insertion_sort(data, size);
             gettimeofday(&end, 0);
 
@@ -210,9 +210,9 @@ int main () {
             printf("\nVetor ordenado pelo algoritmo Insertion Sort: ");
             print_vector(data, size);
             printf("\n\nO algoritmo Insertion Sort levou %.8f segundos para ordenar o vetor.\n", elapsed);
-			break;
-		case 2:
-			gettimeofday(&begin, 0);
+            break;
+        case 2:
+            gettimeofday(&begin, 0);
             selection_sort(data, size);
             gettimeofday(&end, 0);
 
@@ -224,7 +224,7 @@ int main () {
             print_vector(data, size);
             printf("\n\nO algoritmo Selection Sort levou %.8f segundos para ordenar o vetor.\n", elapsed);
             break;
-		case 3:
+        case 3:
             gettimeofday(&begin, 0);
             quick_sort(data, 0, size - 1);
             gettimeofday(&end, 0);
@@ -239,7 +239,7 @@ int main () {
             printf("\n\nO algoritmo Quick Sort levou %.8f segundos para ordenar o vetor.\n", elapsed);
             break;
         case 4:
-			gettimeofday(&begin, 0);
+            gettimeofday(&begin, 0);
             merge_sort(data, 0, size - 1);
             gettimeofday(&end, 0);
 
@@ -251,8 +251,8 @@ int main () {
             print_vector(data, size);
 
             printf("\n\nO algoritmo Merge Sort levou %.8f segundos para ordenar o vetor.\n", elapsed);
-			break;
-		}
+            break;
+        }
 
         printf("\n--------------------------------------------------------------------\n");
 
@@ -263,7 +263,7 @@ int main () {
             printf("\n-- Digite sua escolha: ");
             scanf("%i", &op);
         } while(op != 0 && op != 1);
-	}
+    }
 
     free(data);
     return 0;
