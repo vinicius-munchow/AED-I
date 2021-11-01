@@ -8,7 +8,6 @@
 ```
 lista01
 │   README.md
-│
 └───exercicio01
 │   │   hello.c
 │   │   Makefile
@@ -30,7 +29,12 @@ lista02
 │   │   Makefile
 |   |   test.txt
 |   |   README.md
-|trabalho01
+lista05
+│   sorting.c
+│   Makefile
+|   test.txt
+|   README.md
+trabalho01
 │   trabalho01.c
 │   Makefile
 |   test.txt
