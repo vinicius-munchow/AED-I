@@ -16,16 +16,6 @@ int is_ordered(int *data, int size) {
     return 0;
 }
 
-int print_vector(int *data, int size) {
-    int i;
-    
-    for(i = 0; i < size; i++) {
-        printf("%i ", data[i]);
-    }
-    
-    return 0;
-}
-
 int insertion_sort(int *data, int size) {
     int i, j, temp;
 
@@ -149,6 +139,16 @@ int merge_sort (int *data, int left, int right) {
         merge_sort(data, left, mid);
         merge_sort(data, mid + 1, right);
         merge(data, left, mid, right);
+    }
+    
+    return 0;
+}
+
+int print_vector(int *data, int size) {
+    int i;
+    
+    for(i = 0; i < size; i++) {
+        printf("%i ", data[i]);
     }
     
     return 0;
