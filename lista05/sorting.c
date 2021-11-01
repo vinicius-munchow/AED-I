@@ -1,3 +1,5 @@
+//Vinicius Laguna Munchow
+//Matricula: 20101860
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
